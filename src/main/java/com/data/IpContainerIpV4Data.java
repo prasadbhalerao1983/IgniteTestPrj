@@ -15,10 +15,10 @@ public class IpContainerIpV4Data implements Data<DefaultDataAffinityKey> {
   private long subscriptionId;
   @QuerySqlField(orderedGroups = {@QuerySqlField.Group(name = "ip_container_ipv4_idx1", order = 4, descending = true),
       @QuerySqlField.Group(name = "ip_container_ipv4_idx2", order = 2, descending = true)})
-  private long ipEnd;
+  private int ipEnd;
   @QuerySqlField(orderedGroups = {@QuerySqlField.Group(name = "ip_container_ipv4_idx1", order = 3),
       @QuerySqlField.Group(name = "ip_container_ipv4_idx2", order = 1)})
-  private long ipStart;
+  private int ipStart;
   @QuerySqlField
   private int partitionId;
   @QuerySqlField
@@ -50,19 +50,19 @@ public class IpContainerIpV4Data implements Data<DefaultDataAffinityKey> {
     this.moduleId = moduleId;
   }
 
-  public long getIpEnd() {
+  public int getIpEnd() {
     return ipEnd;
   }
 
-  public void setIpEnd(long ipEnd) {
+  public void setIpEnd(int ipEnd) {
     this.ipEnd = ipEnd;
   }
 
-  public long getIpStart() {
+  public int getIpStart() {
     return ipStart;
   }
 
-  public void setIpStart(long ipStart) {
+  public void setIpStart(int ipStart) {
     this.ipStart = ipStart;
   }
 
@@ -101,7 +101,7 @@ public class IpContainerIpV4Data implements Data<DefaultDataAffinityKey> {
 
   @Override
   public String toString() {
-    return "IpContainerIpV4Data{" + ", ipStart=" + IPv4Util.long2ip(ipStart) + ", ipEnd=" + IPv4Util.long2ip(ipEnd)
+    return "IpContainerIpV4Data{" + ", ipStart=" + IPv4Util.intToIp(ipStart) + ", ipEnd=" + IPv4Util.intToIp(ipEnd)
         + '}';
   }
 

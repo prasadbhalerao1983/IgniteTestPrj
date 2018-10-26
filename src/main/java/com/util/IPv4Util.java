@@ -8,35 +8,27 @@ public class IPv4Util {
   // This is the middle of the unsigned 32-bit integer range
   static final long IP2INT_OFFSET_BY_VALUE = 2147483648L;
 
+
   /**
-   * Integer to IP string
-   *
-   * @param long ipInt
-   * @return String
+   * integer to IP string
    */
-  public static String int2ip(long ipInt) {
+  public static String intToIp(int ipInt) {
     ipInt += IP2INT_OFFSET_BY_VALUE;
-    return long2ip_2(ipInt);
-  }
-
-  public static long intTolong(long ipInt) {
-    return ipInt += IP2INT_OFFSET_BY_VALUE;
+    return intToIpConv(ipInt);
   }
 
   /**
-   * IPv4 to Long
-   *
-   * @param String ipStr
-   * @return long
+   * IPv4 to integer
    */
-  public static long ip2int(String ipStr) throws IPv4Exception {
+  public static int ipToInt(String ipStr) throws IPv4Exception {
 
-    long n = ip2long_2(ipStr);
+    long n = ipToLongConv(ipStr);
 
-    if (!long2ip_2(n).equals(ipStr)) {
+    if (!intToIpConv(n).equals(ipStr)) {
       throw new IPv4Exception("Invalid IP String given " + ipStr);
     }
 
+    int intVal;
     if (n < 0L) {
       // 255.255.255.255 is a special case:
       n += IP2INT_OFFSET_BY_VALUE;
@@ -44,66 +36,37 @@ public class IPv4Util {
       n -= IP2INT_OFFSET_BY_VALUE;
     }
 
-    return n;
+    return (int)n;
   }
-
 
   /**
    * is loop-back address ?
-   *
-   * @param long ipInt
-   * @return boolean
    */
-  public static boolean isLoopback(long ipInt) {
-    return (ipInt & ((int) 0xff000000)) == ((int) 0xff000000);
+  public static boolean isLoopback(int ipInt) {
+    return (ipInt & (0xff000000)) == (0xff000000);
   }
 
   /**
    * is loop-back address ?
-   *
-   * @param long ipInt
-   * @return boolean
    */
   public static boolean isLoopback(String ipStr) {
     try {
-      return isLoopback(ip2int(ipStr));
+      return isLoopback(ipToInt(ipStr));
     } catch (Exception e) {
       return false;
     }
   }
 
-  private static String long2ip_2(long ipInt) {
+  private static String intToIpConv(long ipInt) {
     return ((ipInt >> 24) & 0xFF) + "." + ((ipInt >> 16) & 0xFF) + "." + ((ipInt >> 8) & 0xFF) + "." + (ipInt & 0xFF);
-    //    return int2ip(ipInt);
   }
 
-  /**
-   * Integer to IP string
-   *
-   * @param long ipInt
-   * @return String
-   */
-  public static String long2ip(long ipInt) {
-    //    return ((ipInt >> 24) & 0xFF) + "." + ((ipInt >> 16) & 0xFF) + "." + ((ipInt >> 8) & 0xFF) + "." + (ipInt & 0xFF);
-    return int2ip(ipInt);
-  }
-
-  /**
-   * IPv4 to Long
-   *
-   * @param String ipStr
-   * @return long
-   */
-  public static long ip2long(String ipStr) throws IPv4Exception {
-    return ip2int(ipStr);
-  }
-
-
-  private static long ip2long_2(String ipStr) {
+  private static long ipToLongConv(String ipStr) {
     String[] addrArray = ipStr.split("\\.");
 
     long num = 0;
-    int octet, power;
+    int octet;
+    int power;
 
     for (int i = 0; i < addrArray.length; i++) {
       power = 3 - i;

@@ -23,12 +23,11 @@ import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
  * Cache size: 5 Million entries
  * program Output with 6 GB heap size
  *
- CASE1: TimeTakenToComplete=3831 :: Cursor Fetch Time =3731 :: Size=100000
- CASE2: TimeTakenToComplete=159518 :: Cursor Fetch Time =156079 :: Size=4999998
- CASE3: TimeTakenToComplete=3312 :: Cursor Fetch Time =3312 :: Size=1
- CASE4: TimeTakenToComplete=3248 :: Cursor Fetch Time =3248 :: Size=1
- CASE5: TimeTakenToComplete=2797 :: Cursor Fetch Time =2797 :: Size=1
-
+ * CASE1: TimeTakenToComplete=3831 :: Cursor Fetch Time =3731 :: Size=100000
+ * CASE2: TimeTakenToComplete=159518 :: Cursor Fetch Time =156079 :: Size=4999998
+ * CASE3: TimeTakenToComplete=3312 :: Cursor Fetch Time =3312 :: Size=1
+ * CASE4: TimeTakenToComplete=3248 :: Cursor Fetch Time =3248 :: Size=1
+ * CASE5: TimeTakenToComplete=2797 :: Cursor Fetch Time =2797 :: Size=1
  */
 
 public class IgniteQueryTester {
@@ -37,11 +36,11 @@ public class IgniteQueryTester {
 
   private static final String AFFECTED_IP_RANGE_QUERY =
       "select id,moduleid,subscriptionid,ipEnd,ipStart,partitionid,updateddate "
-          + "from  IpContainerIpV4Data where subscriptionId = ? and moduleId = ? and (ipStart <= ? and ipEnd >= ?) "
-          + "union " + "select id,moduleid,subscriptionid,ipEnd,ipStart,partitionid,updateddate "
-          + "from  IpContainerIpV4Data where subscriptionId = ? and moduleId = ? and (ipStart <= ? and ipEnd >= ?) "
-          + "union " + "select id,moduleid,subscriptionid,ipEnd,ipStart,partitionid,updateddate "
-          + "from  IpContainerIpV4Data where subscriptionId = ? and moduleId = ? and (ipStart >= ? and ipEnd <= ?) ";
+          + "from  IpContainerIpV4Data where subscriptionId = ? and moduleId = ? and (ipStart <= ? and ipEnd >= ?) ";
+  //          + "union " + "select id,moduleid,subscriptionid,ipEnd,ipStart,partitionid,updateddate "
+  //          + "from  IpContainerIpV4Data where subscriptionId = ? and moduleId = ? and (ipStart <= ? and ipEnd >= ?) "
+  //          + "union " + "select id,moduleid,subscriptionid,ipEnd,ipStart,partitionid,updateddate "
+  //          + "from  IpContainerIpV4Data where subscriptionId = ? and moduleId = ? and (ipStart >= ? and ipEnd <= ?) ";
 
   private Ignite ignite;
 
@@ -68,7 +67,6 @@ public class IgniteQueryTester {
     final List<IpContainerIpV4Data> affectedIPRange2 = tester
         .getAffectedIPRange(subscriptionId, moduleId, startIp, endIp);
 
-
     //CASE3:
     startIp = -1967711552;
     endIp = -1967711552;
@@ -87,7 +85,7 @@ public class IgniteQueryTester {
     final List<IpContainerIpV4Data> affectedIPRange5 = tester
         .getAffectedIPRange(subscriptionId, moduleId, startIp, endIp);
 
-    System.out.println("affectedIPRange5::"+affectedIPRange5.toString());
+    System.out.println("affectedIPRange5::" + affectedIPRange5.toString());
 
     System.out.println("Exiting.....");
     //System.exit(0);
@@ -100,8 +98,7 @@ public class IgniteQueryTester {
     final IgniteCache<Object, Object> cache = ignite.cache(IP_CONTAINER_IPV4_CACHE);
 
     SqlFieldsQuery sqlFieldsQuery = new SqlFieldsQuery(AFFECTED_IP_RANGE_QUERY)
-        .setArgs(subScirptionId, containerId, minIp, minIp, subScirptionId, containerId, maxIp, maxIp, subScirptionId,
-            containerId, minIp, maxIp);
+        .setArgs(subScirptionId, containerId, maxIp, minIp);
     cache.query(sqlFieldsQuery);
 
     List<IpContainerIpV4Data> ipV4DataList = new ArrayList<>();
@@ -114,8 +111,8 @@ public class IgniteQueryTester {
         ipV4Data.setId((Long) list.get(0));
         ipV4Data.setModuleId((Integer) list.get(1));
         ipV4Data.setSubscriptionId((Long) list.get(2));
-        ipV4Data.setIpEnd((Long) list.get(3));
-        ipV4Data.setIpStart((Long) list.get(4));
+        ipV4Data.setIpEnd((Integer) list.get(3));
+        ipV4Data.setIpStart((Integer) list.get(4));
         ipV4Data.setPartitionId((Integer) list.get(5));
         ipV4Data.setUpdatedOn((Long) list.get(6));
         ipV4DataList.add(ipV4Data);
@@ -189,8 +186,8 @@ public class IgniteQueryTester {
     final IgniteCache<Object, Object> cache = ignite.cache(IP_CONTAINER_IPV4_CACHE);
 
     //long start = -1979711488;
-    long endIp = 0;
-    long startIp = -1979711488;
+    int endIp = 0;
+    int startIp = -1979711488;
 
     IpContainerIpV4Data data = null;
 
@@ -223,7 +220,7 @@ public class IgniteQueryTester {
     System.out.println("Cache Name=" + IP_CONTAINER_IPV4_CACHE + " :: size=" + cache.size());
   }
 
-  private IpContainerIpV4Data createData(long id, long subscriptionId, int moduleId, long startIp, long endIp) {
+  private IpContainerIpV4Data createData(long id, long subscriptionId, int moduleId, int startIp, int endIp) {
 
     IpContainerIpV4Data data = new IpContainerIpV4Data();
     data.setId(id);
