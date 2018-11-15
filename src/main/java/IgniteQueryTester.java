@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
+import org.apache.ignite.IgniteCluster;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.cache.CacheAtomicityMode;
 import org.apache.ignite.cache.CacheRebalanceMode;
@@ -51,7 +52,7 @@ public class IgniteQueryTester {
 
     int moduleId = 1;
     long subscriptionId = 100;
-    tester.generateTestData(subscriptionId, moduleId);
+    //tester.generateTestData(subscriptionId, moduleId);
 
     System.out.println("Test data generated...");
 
@@ -126,6 +127,8 @@ public class IgniteQueryTester {
 
   private void init() {
     this.ignite = Ignition.start(getIgniteConfiguration());
+    this.ignite.cluster().active(true);
+    System.out.println("Cluster set actviee");
   }
 
   private IgniteConfiguration getIgniteConfiguration() {
@@ -148,12 +151,12 @@ public class IgniteQueryTester {
     DataStorageConfiguration storageCfg = new DataStorageConfiguration();
     DataRegionConfiguration regionConfiguration = new DataRegionConfiguration();
     regionConfiguration.setInitialSize(2L * 1024 * 1024 * 1024);
-    regionConfiguration.setMaxSize(4L * 1024 * 1024 * 1024);
+    regionConfiguration.setMaxSize(6L * 1024 * 1024 * 1024);
     storageCfg.setDefaultDataRegionConfiguration(regionConfiguration);
-    //        storageCfg.getDefaultDataRegionConfiguration().setPersistenceEnabled(true);
-    //        storageCfg.setStoragePath(dataStoragePath);
-    //        storageCfg.setWalPath(dataStoragePath);
-    //        storageCfg.setWalArchivePath(dataStoragePath);
+    storageCfg.getDefaultDataRegionConfiguration().setPersistenceEnabled(true);
+    storageCfg.setStoragePath("c:/ignite-storage/storage");
+    storageCfg.setWalPath("c:/ignite-storage/storage/wal");
+    storageCfg.setWalArchivePath("c:/ignite-storage/storage/wal-archive");
     cfg.setDataStorageConfiguration(storageCfg);
 
     cfg.setCacheConfiguration(ipContainerIPV4CacheCfg());
@@ -185,13 +188,16 @@ public class IgniteQueryTester {
 
     final IgniteCache<Object, Object> cache = ignite.cache(IP_CONTAINER_IPV4_CACHE);
 
+    this.ignite.cluster().disableWal(IP_CONTAINER_IPV4_CACHE);
+    System.out.println("WAL disabled");
+
     //long start = -1979711488;
     int endIp = 0;
     int startIp = -1979711488;
 
     IpContainerIpV4Data data = null;
 
-    for (int ctr = 1; ctr <= 5000_000; ) {
+    for (int ctr = 1; ctr <= 15000_000; ) {
 
       endIp = startIp + 50;
 
@@ -216,6 +222,10 @@ public class IgniteQueryTester {
 
 
     }
+
+    this.ignite.cluster().enableWal(IP_CONTAINER_IPV4_CACHE);
+    System.out.println("WAL enabled");
+
     System.out.println("Final :: startIp=" + startIp + " :: endIp=" + endIp);
     System.out.println("Cache Name=" + IP_CONTAINER_IPV4_CACHE + " :: size=" + cache.size());
   }
@@ -231,4 +241,21 @@ public class IgniteQueryTester {
     return data;
   }
 
+  /**
+   * OUTPUT :: 14-Nov-2018 :: Time: 8.30 PM
+   *
+   * Final :: startIp=-1799711488 :: endIp=-1799711490
+   Cache Name=IP_CONTAINER_IPV4_CACHE :: size=15000000
+   Test data generated...
+   TimeTakenToComplete=1024 :: Cursor Fetch Time =916 :: Size=100000
+   TimeTakenToComplete=8080 :: Cursor Fetch Time =6079 :: Size=4999998
+   TimeTakenToComplete=656 :: Cursor Fetch Time =656 :: Size=1
+   TimeTakenToComplete=626 :: Cursor Fetch Time =626 :: Size=1
+   TimeTakenToComplete=0 :: Cursor Fetch Time =0 :: Size=1
+   affectedIPRange5::[IpContainerIpV4Data{, ipStart=10.0.0.0, ipEnd=10.0.0.50}]
+
+   Cache size in Bytes: 5 GB for 15 million entries
+   */
 }
+
+

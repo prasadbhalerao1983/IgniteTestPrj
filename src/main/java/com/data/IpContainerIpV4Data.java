@@ -3,6 +3,10 @@ package com.data;
 import com.util.IPv4Util;
 import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
+/**
+ * Takes approx 5 GB on disk for 15 million entries when persistence is enabled.
+ *
+ */
 public class IpContainerIpV4Data implements Data<DefaultDataAffinityKey> {
 
   @QuerySqlField
