@@ -58,8 +58,8 @@ public class IgniteQueryTester_4 {
 
   private static final String SQL_2 =
       "SELECT ipv4agd.id, ipv4agd.assetGroupId, ipv4agd.ipStart, ipv4agd.ipEnd "
-          + "FROM IpV4AssetGroupData ipv4agd "
-          + "JOIN TABLE (assetGroupId bigint = ? ) temp ON ipv4agd.assetGroupId = temp.assetGroupId "
+          + "FROM TABLE (assetGroupId bigint = ? ) temp "
+          + "JOIN IpV4AssetGroupData ipv4agd USE INDEX (ipv4_asset_group_data_idx2) ON ipv4agd.assetGroupId = temp.assetGroupId "
           + "WHERE "
           + "subscriptionId = ? AND (ipStart <= ? AND ipEnd >= ?) "
           + "ORDER BY ipv4agd.assetGroupId";
@@ -142,6 +142,7 @@ public class IgniteQueryTester_4 {
     System.out.println("\ngetAffectedIPRange_2 :: SQL_2=" + SQL_2);
     Object[] inputArr = {agId.toArray(), subscriptionId, maxIp, minIp};
     sqlFieldsQuery.setArgs(inputArr);
+    sqlFieldsQuery.setEnforceJoinOrder(true);
 
     cache.query(sqlFieldsQuery);
 
